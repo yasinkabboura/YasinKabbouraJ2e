@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="YasinIoCMiniFramework:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/YasinIoCMiniFramework_jar</output-path>
+    <root id="archive" name="YasinIoCMiniFramework.jar">
+      <element id="module-output" name="YasinIoCMiniFramework" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/dom-2.3.0-jaxb-1.0.6.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
