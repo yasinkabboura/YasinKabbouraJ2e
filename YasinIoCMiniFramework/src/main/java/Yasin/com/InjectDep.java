@@ -11,6 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -83,17 +84,71 @@ public class InjectDep {
                         }}
                 }
 
-            }
-        }
+                //constructor
+                //now after creating the object we make sure that all dependencies of that object are created relaying on constructor
+                //we extract a list of nodes with tag name constructor-arg presented in the current node element we are processing
+                NodeList nodeList3 = ((Element) node).getElementsByTagName("constructor-arg") ;
+                //check the list if its empty it means no constructor-arg is present if its not empty we start process
+                if(nodeList3.getLength() > 0){
+                    //here we created 2 hashmaps ListParms for classes that needs to be injected
+                    //and B for the Objects created from those classes
+                    //we used hashmaps to make sur that even if in XML order of params didnt respected we can resolve that
+                    //relying on the index tag and this hashmaps
+                    HashMap<Integer, Class> ListParms = new HashMap<>();
+                    HashMap<Integer,Object>  B = new HashMap<>();
+                    //we iterate list of nodes like before
+                    for (int itr2 = 0; itr2 < nodeList3.getLength(); itr2++)
+                    {
+                        //we take a node from the list we make sure its a node element like before
+                        Node node2 = nodeList3.item(itr2);
+                        if (node.getNodeType() == Node.ELEMENT_NODE)
+                        {
+                            //we cast node to an element
+                            Element eElement2 = (Element) node2;
+                            //we extract the index from index tag which indicate the which place the next param will be in the constructor params
+                            Integer index = Integer.parseInt(eElement2.getAttribute("index"));
+                            //the value tag is a reference to the already created object from this class
+                            String value = eElement2.getAttribute("value");
+
+                            //in ListParms we put the class of the object needed
+                            ListParms.put(index,Objects.get(value).getClass());
+                            //in B we put the actual Object
+                            B.put(index,Objects.get(value));
+                        }}
+                    /**
+                     * No we need to extract 2 arrays one of type Class
+                     * and the other of type Object from Hashmaps we created early
+                     * **/
+                    //A will holds classes
+                    Class [] A= new Class[ListParms.size()];
+                    for (int i=0;i<ListParms.size();i++){
+                        A[i] = ListParms.get(i);
+                    }
+                    //Objs will hold Objetcs
+                    Object [] Objs= new Object[B.size()];
+                    for (int i=0;i<B.size();i++){
+                        Objs[i] = B.get(i);
+                    }
+                    //now we use our custom methode to get the right constructor here we pass A list of classes
+                    //which represent constructor arguments types,
+                    //and the name of the class as a String because constructor have the same name as Class
+                    //after methode return the right constructor we creat an instance and pass the Objs Array which holds our
+                    //objects
+                    Object ob = findConstructor(ObjectInstance,ObjectInstance.getClass().toString(),A).newInstance(Objs);
+                    //here we replace the already created object with the new one we created using constructor
+                    Objects.put(ObId,ob);
+
+                }
+            }}
 
 
-        }
-        //methode that return the object based on its id we extract it and then return it
-        public Object getBean(String BeanName){
-            return Objects.get(BeanName);
-        }
+    }
+    //methode that return the object based on its id we extract it and then return it
+    public Object getBean(String BeanName){
+        return Objects.get(BeanName);
+    }
 
-        //customer methode to help find the methode we are looking for as a setter
+    //customer methode to help find the methode we are looking for as a setter
     //methode receive 3 parameters an Object on which we will call the methode(setter) the name of the methode and the type of the parameter
     public static Method findMethod(Object m, String methodName, Class DepType) throws NoSuchMethodException {
         //get the class from the object then extract al declared methods from that class on a array
@@ -117,8 +172,8 @@ public class InjectDep {
             List<Method> sameCountOfParameters = new ArrayList<Method>();
             //because we rely on setter methods which usually have one parameter we test only for one param
             /* in the future we can change this if we have only one methode to inject all dependencies so we can pass a list to this methode and work on how
-            * many params we want
-            * */
+             * many params we want
+             * */
             for (Method meth : sameNames) {
                 //if they have they same number of parameters we add it to the list
                 if (meth.getParameterTypes().length == 1) {
@@ -141,27 +196,27 @@ public class InjectDep {
                     boolean good = true;
                     for (int i = 0; i < params.length && good; i++) {
                         /*here we check if the parameter passed to the methode is an interface then
-                        * we get all the interfaces that our type is implementing and chick if one of them
-                        * is the interface we have in params[i]
-                        * if its true means that this methode have the interface stored in params[i] as one of the params
-                        * we keep iterating other params
-                        * */
+                         * we get all the interfaces that our type is implementing and chick if one of them
+                         * is the interface we have in params[i]
+                         * if its true means that this methode have the interface stored in params[i] as one of the params
+                         * we keep iterating other params
+                         * */
                         if (params[i].isInterface() && Arrays.asList(DepType.getInterfaces()).contains(params[i])) {
                             good = true;
                             continue;
                         } else {
                             /*
-                            * here if the first test failed we check maybe the param in the methode is type of superClass
-                            * which mean maybe a type of class which another class inherit from
-                            * we may encounter this situation in our framework, so we have to include it
-                            * */
+                             * here if the first test failed we check maybe the param in the methode is type of superClass
+                             * which mean maybe a type of class which another class inherit from
+                             * we may encounter this situation in our framework, so we have to include it
+                             * */
                             if (DepType.getSuperclass().equals(params[i])) {
                                 good = true;
                                 continue;
                             }
                             /*
-                            * here finally we check the usual case if the param is type of class
-                            * */
+                             * here finally we check the usual case if the param is type of class
+                             * */
                             else if(DepType.equals(params[i])){
                                 good = true;
                                 continue;
@@ -180,5 +235,80 @@ public class InjectDep {
         //if the boolean good is false we throw an exception of NoSuchMethodException
         throw new NoSuchMethodException();
     }
+
+
+
+
+
+
+    //Similaire methode to the one we used to get the sitter but this one recive a list of Classes not just one
+    public static Constructor findConstructor(Object m, String methodName, Class[] DepType) throws NoSuchMethodException {
+        //get the class from the object then extract al declared Constructors from that class on a array
+        Constructor[] metody = m.getClass().getDeclaredConstructors();
+        //based on this list we have to find all methods with the same number of parameters
+        //this list will hold those methods
+        List<Constructor> sameCountOfParameters = new ArrayList<Constructor>();
+        for (Constructor meth : metody) {
+            //if they have the same number of parameters we add it to the list
+            if (meth.getParameterTypes().length == 1) {
+                sameCountOfParameters.add(meth);
+            }
+        }
+        // check if we find any Constructors of the same number of params or Not if we didnt we throw an exception of NoSuchMethodException
+        if (sameCountOfParameters.isEmpty()) {
+            throw new NoSuchMethodException();
+        } else {
+            //now we have a Constructors with the same number of params
+            // we iterate this list to find the Constructor that type of the params match the type of params we need
+            for (Constructor meth : sameCountOfParameters) {
+                /** note that we only have one param but getParameterTypes() returns a list so we will try to work as we have more than one
+                 * param
+                 * **/
+                Class<?>[] params = meth.getParameterTypes();
+                //this boolean we help us keep track the parameters types and if we find the right methode
+                boolean good = true;
+                for (int i = 0; i < params.length && good; i++) {
+                    /*here we check if the parameter passed to the methode is an interface then
+                     * we get all the interfaces that our type is implementing and chick if one of them
+                     * is the interface we have in params[i]
+                     * if its true means that this methode have the interface stored in params[i] as one of the params
+                     * we keep iterating other params
+                     * */
+                    if (params[i].isInterface() && Arrays.asList(DepType[i].getInterfaces()).contains(params[i])) {
+                        good = true;
+                        continue;
+                    } else {
+                        /*
+                         * here if the first test failed we check maybe the param in the methode is type of superClass
+                         * which mean maybe a type of class which another class inherit from
+                         * we may encounter this situation in our framework, so we have to include it
+                         * */
+                        if (DepType[i].getSuperclass().equals(params[i])) {
+                            good = true;
+                            continue;
+                        }
+                        /*
+                         * here finally we check the usual case if the param is type of class
+                         * */
+                        else if (DepType.equals(params[i])) {
+                            good = true;
+                            continue;
+                        }
+                    }
+                    //if we are here means none of the above conditions is true means this in not the right methode
+                    good = false;
+                }
+                //after the end of iterating we check the boolean good its true means we have the right method
+                if (good) {
+                    return meth;
+                } else {
+                    throw new NoSuchMethodException();
+
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

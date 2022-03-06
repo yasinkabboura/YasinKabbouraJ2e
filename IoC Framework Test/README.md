@@ -1,5 +1,5 @@
 #Dependency injection Framework Test
-first our project structure is a dao package and a metier package
+first our project structure is a presentation.dao package and a presentation.metier package
 
 [Framework Repository ](https://github.com/yasinkabboura/YasinKabbouraJ2e/tree/main/YasinIoCMiniFramework)
 
@@ -40,10 +40,41 @@ firstly we need to add our Framework to our Libraries in the project structure
 
 ![This is an image](Images/8.PNG)
 
-##XML Config File
+
+#Test XML file injection
+
+##XML Config File (proberty)
 
 ![This is an image](Images/9.PNG)
 
-#Test
-
 ![This is an image](Images/10.PNG)
+
+
+#Test XML file injection
+
+##XML Config File (constructor-arg)
+
+here we used the constructor to inject the dependency
+![This is an image](Images/11.PNG)
+
+![This is an image](Images/12.PNG)
+
+#Test Annotaion
+
+we add the @Component to each class
+then we add  @Autowired to each field
+
+![This is an image](Images/13.PNG)
+
+![This is an image](Images/15.PNG)
+
+
+we made sure that we change the main method also
+![This is an image](Images/16.PNG)
+
+
+
+
+
+
+

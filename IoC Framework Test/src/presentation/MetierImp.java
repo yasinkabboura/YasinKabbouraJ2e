@@ -1,11 +1,20 @@
-package metier;
+package presentation;
 
-import dao.Dao;
+import Yasin.com.Autowired;
+import Yasin.com.Component;
 
+@Component
 public class MetierImp implements Metier{
 
-    private Dao dao=null;
+    @Autowired
+    private Dao dao;
 
+    public MetierImp() {
+    }
+
+    public MetierImp(Dao dao) {
+        this.dao = dao;
+    }
 
     @Override
     public double calcul() {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Beans>
-    <bean id="d" class="dao.DaoImp"></bean>
-    <bean id="metier" class="metier.MetierImp">
-        <property name="dao" ref="d" ></property>
+    <bean id="d" class="presentation.DaoImp"></bean>
+    <bean id="metier" class="presentation.MetierImp">
+        <constructor-arg index="0" value="d"/>
     </bean>
 </Beans>

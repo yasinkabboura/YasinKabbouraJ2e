@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="core-12.45.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/core-12.45.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/dom-2.3.0-jaxb-1.0.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jvm-driver-8.9.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/narcissus-1.0.7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
