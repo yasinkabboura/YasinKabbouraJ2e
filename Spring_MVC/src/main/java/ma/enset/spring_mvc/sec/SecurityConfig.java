@@ -28,11 +28,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        auth.inMemoryAuthentication().withUser("user1").password(encodedPass).roles("USER").and()
 //                .withUser("user2").password(encodedPass).roles("USER").and()
 //                .withUser("admin").password(encodedPass).roles("USER","ADMIN");
-        auth.jdbcAuthentication().dataSource(dataSource)
-                .usersByUsernameQuery("select username as principal,password as credentials,active from users where username=?")
-                .authoritiesByUsernameQuery("select username as principal,role as role from users_roles where username=?")
-                .rolePrefix("ROLE_")
-                .passwordEncoder(passwordEncoder);
+//        auth.jdbcAuthentication().dataSource(dataSource)
+//                .usersByUsernameQuery("select username as principal,password as credentials,active from users where username=?")
+//                .authoritiesByUsernameQuery("select username as principal,role as role from users_roles where username=?")
+//                .rolePrefix("ROLE_")
+//                .passwordEncoder(passwordEncoder);
+        auth.userDetailsService(new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                return null;
+            }
+        });
 
     }
 
