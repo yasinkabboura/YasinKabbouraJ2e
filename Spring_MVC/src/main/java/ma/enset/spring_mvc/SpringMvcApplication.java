@@ -16,7 +16,11 @@ public class SpringMvcApplication {
         SpringApplication.run(SpringMvcApplication.class, args);
     }
     @Bean
-    CommandLineRunner commandLineRunner(PatientRepository patientRepository){
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+    //@Bean
+    CommandLineRunner commandLineRunner(PatientRepository patientRepository,SecurityService securityService){
         return args ->{
 //            patientRepository.save(new Patient(null,"Ahmed",new Date(),true,15));
 //            patientRepository.save(new Patient(null,"Rachid",new Date(),false,5));
@@ -32,6 +36,17 @@ public class SpringMvcApplication {
                 System.out.println(r.getNom());
             });
             System.out.println("**********************************************************************************");
+
+//            securityService.saveNewUser("yasin","1234","1234");
+//            securityService.saveNewUser("saad","1234","1234");
+//            securityService.saveNewUser("ahmed","1234","1234");
+//            securityService.saveNewRole("USER","");
+//            securityService.saveNewRole("ADMIN","");
+//
+//            securityService.addRoleToUser("yasin","USER");
+//            securityService.addRoleToUser("yasin","ADMIN");
+//            securityService.addRoleToUser("saad","USER");
+//            securityService.addRoleToUser("ahmed","USER");
         };
     }
 
